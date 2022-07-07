@@ -256,6 +256,8 @@ export async function fulfillBasicOrder({
     fulfillerOperator,
   });
 
+  console.log(insufficientApprovals, "insufficient approvals");
+
   const basicOrderParameters: BasicOrderParametersStruct = {
     offerer: order.parameters.offerer,
     offererConduitKey: order.parameters.conduitKey,
