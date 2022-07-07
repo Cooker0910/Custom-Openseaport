@@ -244,8 +244,6 @@ export async function fulfillBasicOrder({
     },
   })[ethers.constants.AddressZero]?.["0"];
 
-  console.log(totalNativeAmount, "total native amount");
-
   const insufficientApprovals = validateBasicFulfillBalancesAndApprovals({
     offer,
     consideration: considerationIncludingTips,
@@ -255,8 +253,6 @@ export async function fulfillBasicOrder({
     offererOperator,
     fulfillerOperator,
   });
-
-  console.log(insufficientApprovals, "insufficient approvals");
 
   const basicOrderParameters: BasicOrderParametersStruct = {
     offerer: order.parameters.offerer,
@@ -306,6 +302,126 @@ export async function fulfillBasicOrder({
     actions,
     executeAllActions: () =>
       executeAllActions(actions) as Promise<ContractTransaction>,
+  };
+}
+
+export async function _fulfillBasicOrder({
+  order,
+  seaportContract,
+  offererBalancesAndApprovals,
+  fulfillerBalancesAndApprovals,
+  timeBasedItemParams,
+  offererOperator,
+  fulfillerOperator,
+  signer,
+  tips = [],
+  conduitKey = NO_CONDUIT,
+}: {
+  order: Order;
+  seaportContract: Seaport;
+  offererBalancesAndApprovals: BalancesAndApprovals;
+  fulfillerBalancesAndApprovals: BalancesAndApprovals;
+  timeBasedItemParams: TimeBasedItemParams;
+  offererOperator: string;
+  fulfillerOperator: string;
+  signer: providers.JsonRpcSigner;
+  tips?: ConsiderationItem[];
+  conduitKey: string;
+}): Promise<any> {
+  const { offer, consideration } = order.parameters;
+  const considerationIncludingTips = [...consideration, ...tips];
+
+  const offerItem = offer[0];
+  const [forOfferer, ...forAdditionalRecipients] = considerationIncludingTips;
+
+  const basicOrderRouteType =
+    offerAndConsiderationFulfillmentMapping[offerItem.itemType]?.[
+      forOfferer.itemType
+    ];
+
+  if (basicOrderRouteType === undefined) {
+    throw new Error(
+      "Order parameters did not result in a valid basic fulfillment"
+    );
+  }
+
+  const additionalRecipients = forAdditionalRecipients.map(
+    ({ startAmount, recipient }) => ({
+      amount: startAmount,
+      recipient,
+    })
+  );
+
+  const considerationWithoutOfferItemType = considerationIncludingTips.filter(
+    (item) => item.itemType !== offer[0].itemType
+  );
+
+  const totalNativeAmount = getSummedTokenAndIdentifierAmounts({
+    items: considerationWithoutOfferItemType,
+    criterias: [],
+    timeBasedItemParams: {
+      ...timeBasedItemParams,
+      isConsiderationItem: true,
+    },
+  })[ethers.constants.AddressZero]?.["0"];
+
+  const insufficientApprovals = validateBasicFulfillBalancesAndApprovals({
+    offer,
+    consideration: considerationIncludingTips,
+    offererBalancesAndApprovals,
+    fulfillerBalancesAndApprovals,
+    timeBasedItemParams,
+    offererOperator,
+    fulfillerOperator,
+  });
+
+  const basicOrderParameters: BasicOrderParametersStruct = {
+    offerer: order.parameters.offerer,
+    offererConduitKey: order.parameters.conduitKey,
+    zone: order.parameters.zone,
+    //  Note the use of a "basicOrderType" enum;
+    //  this represents both the usual order type as well as the "route"
+    //  of the basic order (a simple derivation function for the basic order
+    //  type is `basicOrderType = orderType + (4 * basicOrderRoute)`.)
+    basicOrderType: order.parameters.orderType + 4 * basicOrderRouteType,
+    offerToken: offerItem.token,
+    offerIdentifier: offerItem.identifierOrCriteria,
+    offerAmount: offerItem.endAmount,
+    considerationToken: forOfferer.token,
+    considerationIdentifier: forOfferer.identifierOrCriteria,
+    considerationAmount: forOfferer.endAmount,
+    startTime: order.parameters.startTime,
+    endTime: order.parameters.endTime,
+    salt: order.parameters.salt,
+    totalOriginalAdditionalRecipients:
+      order.parameters.consideration.length - 1,
+    signature: order.signature,
+    fulfillerConduitKey: conduitKey,
+    additionalRecipients,
+    zoneHash: order.parameters.zoneHash,
+  };
+
+  const payableOverrides = { value: totalNativeAmount };
+
+  const approvalActions = await getApprovalActions(
+    insufficientApprovals,
+    signer
+  );
+
+  const exchangeAction = {
+    type: "exchange",
+    transactionMethods: getTransactionMethods(
+      seaportContract.connect(signer),
+      "fulfillBasicOrder",
+      [basicOrderParameters, payableOverrides]
+    ),
+  } as const;
+
+  const actions = [...approvalActions, exchangeAction] as const;
+
+  return {
+    basicOrderParameters,
+    payableOverrides,
   };
 }
 
@@ -368,8 +484,6 @@ export async function fulfillStandardOrder({
         totalFilled,
         totalSize,
       });
-
-  console.log(orderWithAdjustedFills, "order with adjust fills");
 
   const {
     parameters: { offer, consideration },

@@ -185,8 +185,6 @@ export const getInsufficientBalanceAndApprovalAmounts = ({
     filterBalancesOrApprovals("approvedAmount").map(mapToApproval),
   ];
 
-  console.log(insufficientBalances, insufficientApprovals, "insufficient ");
-
   return {
     insufficientBalances,
     insufficientApprovals,
@@ -288,10 +286,6 @@ export const validateBasicFulfillBalancesAndApprovals = ({
   const considerationWithoutOfferItemType = consideration.filter(
     (item) => item.itemType !== offer[0].itemType
   );
-  console.log(
-    considerationWithoutOfferItemType,
-    "consideration wihtout offer item type"
-  );
 
   const { insufficientBalances, insufficientApprovals } =
     getInsufficientBalanceAndApprovalAmounts({
@@ -307,11 +301,11 @@ export const validateBasicFulfillBalancesAndApprovals = ({
       operator: fulfillerOperator,
     });
 
-  if (insufficientBalances.length > 0) {
-    throw new Error(
-      "The fulfiller does not have the balances needed to fulfill."
-    );
-  }
+  // if (insufficientBalances.length > 0) {
+  //   throw new Error(
+  //     "The fulfiller does not have the balances needed to fulfill."
+  //   );
+  // }
 
   return insufficientApprovals;
 };

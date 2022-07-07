@@ -45,6 +45,7 @@ import {
 import {
   fulfillAvailableOrders,
   fulfillBasicOrder,
+  _fulfillBasicOrder,
   FulfillOrdersMetadata,
   fulfillStandardOrder,
   shouldUseBasicFulfill,
@@ -735,16 +736,7 @@ export class Seaport {
     accountAddress?: string;
     conduitKey?: string;
     recipientAddress?: string;
-  }): Promise<
-    OrderUseCase<
-      ExchangeAction<
-        ContractMethodReturnType<
-          SeaportContract,
-          "fulfillBasicOrder" | "fulfillOrder" | "fulfillAdvancedOrder"
-        >
-      >
-    >
-  > {
+  }): Promise<any> {
     const { parameters: orderParameters } = order;
     const { offerer, offer, consideration } = orderParameters;
 
@@ -807,8 +799,6 @@ export class Seaport {
 
     const isRecipientSelf = recipientAddress === ethers.constants.AddressZero;
 
-    console.log(isRecipientSelf, "is reciptien self");
-
     // We use basic fulfills as they are more optimal for simple and "hot" use cases
     // We cannot use basic fulfill if user is trying to partially fill though.
     if (
@@ -818,7 +808,7 @@ export class Seaport {
     ) {
       console.log("here 1");
       // TODO: Use fulfiller proxy if there are approvals needed directly, but none needed for proxy
-      return fulfillBasicOrder({
+      return _fulfillBasicOrder({
         order: sanitizedOrder,
         seaportContract: this.contract,
         offererBalancesAndApprovals,
