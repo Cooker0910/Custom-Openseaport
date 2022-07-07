@@ -142,6 +142,11 @@ export const getInsufficientBalanceAndApprovalAmounts = ({
     ),
   ].flat();
 
+  console.log(
+    tokenAndIdentifierAndAmountNeeded,
+    "token and Identifier and amount"
+  );
+
   const filterBalancesOrApprovals = (
     filterKey: "balance" | "approvedAmount"
   ): InsufficientBalances =>
@@ -168,6 +173,7 @@ export const getInsufficientBalanceAndApprovalAmounts = ({
           itemType: balanceAndApproval.itemType,
         };
       });
+  console.log(filterBalancesOrApprovals, "filter balances or approvals");
 
   const mapToApproval = (
     insufficientBalance: InsufficientBalances[number]
@@ -285,6 +291,10 @@ export const validateBasicFulfillBalancesAndApprovals = ({
 
   const considerationWithoutOfferItemType = consideration.filter(
     (item) => item.itemType !== offer[0].itemType
+  );
+  console.log(
+    considerationWithoutOfferItemType,
+    "consideration wihtout offer item type"
   );
 
   const { insufficientBalances, insufficientApprovals } =

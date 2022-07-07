@@ -244,6 +244,8 @@ export async function fulfillBasicOrder({
     },
   })[ethers.constants.AddressZero]?.["0"];
 
+  console.log(totalNativeAmount, "total native amount");
+
   const insufficientApprovals = validateBasicFulfillBalancesAndApprovals({
     offer,
     consideration: considerationIncludingTips,
@@ -364,6 +366,8 @@ export async function fulfillStandardOrder({
         totalFilled,
         totalSize,
       });
+
+  console.log(orderWithAdjustedFills, "order with adjust fills");
 
   const {
     parameters: { offer, consideration },

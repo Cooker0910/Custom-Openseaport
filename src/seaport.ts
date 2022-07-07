@@ -740,7 +740,7 @@ export class Seaport {
       ExchangeAction<
         ContractMethodReturnType<
           SeaportContract,
-          "fulfillBasicOrder" | "_fulfillOrder" | "fulfillAdvancedOrder"
+          "fulfillBasicOrder" | "fulfillOrder" | "fulfillAdvancedOrder"
         >
       >
     >
@@ -751,12 +751,9 @@ export class Seaport {
     const fulfiller = await this.provider.getSigner(accountAddress);
 
     const fulfillerAddress = await fulfiller.getAddress();
-    console.log(fulfiller, 'fulfiller')
 
     const offererOperator =
       this.config.conduitKeyToConduit[orderParameters.conduitKey];
-    console.log(offererOperator, 'offerer operator')
-    console.log(this.config, 'this config')
 
     const fulfillerOperator = this.config.conduitKeyToConduit[conduitKey];
 
@@ -810,7 +807,7 @@ export class Seaport {
 
     const isRecipientSelf = recipientAddress === ethers.constants.AddressZero;
 
-    console.log(isRecipientSelf, 'is reciptien self')
+    console.log(isRecipientSelf, "is reciptien self");
 
     // We use basic fulfills as they are more optimal for simple and "hot" use cases
     // We cannot use basic fulfill if user is trying to partially fill though.
@@ -819,6 +816,7 @@ export class Seaport {
       isRecipientSelf &&
       shouldUseBasicFulfill(sanitizedOrder.parameters, totalFilled)
     ) {
+      console.log("here 1");
       // TODO: Use fulfiller proxy if there are approvals needed directly, but none needed for proxy
       return fulfillBasicOrder({
         order: sanitizedOrder,
