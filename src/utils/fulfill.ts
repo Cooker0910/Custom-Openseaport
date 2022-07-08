@@ -417,12 +417,6 @@ export async function _fulfillBasicOrder({
     ),
   } as const;
 
-  const test = [basicOrderParameters, payableOverrides];
-
-  console.log(test, typeof test, "test");
-
-  console.log(exchangeAction, "exchangeAction");
-
   const actions = [...approvalActions, exchangeAction] as const;
 
   return {

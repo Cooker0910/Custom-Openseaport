@@ -806,7 +806,7 @@ export class Seaport {
       isRecipientSelf &&
       shouldUseBasicFulfill(sanitizedOrder.parameters, totalFilled)
     ) {
-      console.log("here 1");
+      console.log("_fulfillBasicOrder");
       // TODO: Use fulfiller proxy if there are approvals needed directly, but none needed for proxy
       return _fulfillBasicOrder({
         order: sanitizedOrder,
