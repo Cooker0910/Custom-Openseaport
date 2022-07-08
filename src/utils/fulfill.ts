@@ -287,9 +287,6 @@ export async function fulfillBasicOrder({
     signer
   );
 
-  console.log(basicOrderParameters, "basicOrderParameters");
-  console.log(payableOverrides, "payableOverrides");
-
   const exchangeAction = {
     type: "exchange",
     transactionMethods: getTransactionMethods(
@@ -298,8 +295,6 @@ export async function fulfillBasicOrder({
       [basicOrderParameters, payableOverrides]
     ),
   } as const;
-
-  console.log(exchangeAction, "exchangeAction");
 
   const actions = [...approvalActions, exchangeAction] as const;
 
@@ -421,6 +416,12 @@ export async function _fulfillBasicOrder({
       [basicOrderParameters, payableOverrides]
     ),
   } as const;
+
+  const test = [basicOrderParameters, payableOverrides];
+
+  console.log(test, typeof test, "test");
+
+  console.log(exchangeAction, "exchangeAction");
 
   const actions = [...approvalActions, exchangeAction] as const;
 
