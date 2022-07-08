@@ -20,6 +20,7 @@ export const executeAllActions = async <
   }
 
   const finalAction = actions[actions.length - 1] as T;
+  console.log(finalAction.type, "type");
 
   return finalAction.type === "create"
     ? await finalAction.createOrder()
