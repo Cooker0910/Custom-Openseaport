@@ -737,21 +737,17 @@ export class Seaport {
     conduitKey?: string;
     recipientAddress?: string;
   }): Promise<any> {
-    console.log(740);
     const { parameters: orderParameters } = order;
     const { offerer, offer, consideration } = orderParameters;
 
     const fulfiller = await this.provider.getSigner(accountAddress);
-    console.log(745);
 
     const fulfillerAddress = await fulfiller.getAddress();
-    console.log(748);
 
     const offererOperator =
       this.config.conduitKeyToConduit[orderParameters.conduitKey];
 
     const fulfillerOperator = this.config.conduitKeyToConduit[conduitKey];
-    console.log(751);
 
     const [
       offererBalancesAndApprovals,
@@ -778,7 +774,6 @@ export class Seaport {
       this.multicallProvider.getBlock("latest"),
       this.getOrderStatus(this.getOrderHash(orderParameters)),
     ]);
-    console.log(778);
 
     const currentBlockTimestamp = currentBlock.timestamp;
 
@@ -788,7 +783,6 @@ export class Seaport {
       order,
       orderStatus
     );
-    console.log(787);
 
     const timeBasedItemParams = {
       startTime: sanitizedOrder.parameters.startTime,
@@ -797,7 +791,6 @@ export class Seaport {
       ascendingAmountTimestampBuffer:
         this.config.ascendingAmountFulfillmentBuffer,
     };
-    console.log(795);
 
     const tipConsiderationItems = tips.map((tip) => ({
       ...mapInputItemToOfferItem(tip),
@@ -805,7 +798,6 @@ export class Seaport {
     }));
 
     const isRecipientSelf = recipientAddress === ethers.constants.AddressZero;
-    console.log(802);
 
     // We use basic fulfills as they are more optimal for simple and "hot" use cases
     // We cannot use basic fulfill if user is trying to partially fill though.
@@ -814,7 +806,6 @@ export class Seaport {
       isRecipientSelf &&
       shouldUseBasicFulfill(sanitizedOrder.parameters, totalFilled)
     ) {
-      console.log("_fulfillBasicOrder");
       // TODO: Use fulfiller proxy if there are approvals needed directly, but none needed for proxy
       return _fulfillBasicOrder({
         order: sanitizedOrder,

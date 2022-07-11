@@ -75,16 +75,13 @@ export const getBalancesAndApprovals = async ({
   operator: string;
   multicallProvider: multicallProviders.MulticallProvider;
 }): Promise<BalancesAndApprovals> => {
-  console.log(78);
   const itemToCriteria = getItemToCriteriaMap(items, criterias);
-  console.log(80);
 
   return Promise.all(
     items.map(async (item) => {
       let approvedAmountPromise = Promise.resolve(BigNumber.from(0));
 
       if (isErc721Item(item.itemType) || isErc1155Item(item.itemType)) {
-        console.log("erc721");
         approvedAmountPromise = approvedItemAmount(
           owner,
           item,
@@ -101,7 +98,6 @@ export const getBalancesAndApprovals = async ({
       }
       // If native token, we don't need to check for approvals
       else {
-        console.log("native");
         approvedAmountPromise = Promise.resolve(MAX_INT);
       }
 
